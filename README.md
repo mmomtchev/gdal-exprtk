@@ -32,7 +32,8 @@ const dsT2m = gdal.open('AROME_T2m_10.tiff'));
 const dsD2m = gdal.open('AROME_D2m_10.tiff'));
 
 const output = `/vsimem/AROME_CLOUDBASE.tiff`;
-const dsCloudBase = gdal.open(filename, 'w', 'GTiff', dsT2m.rasterSize.x, dsT2m.rasterSize.y, 1, gdal.GDT_Float64);
+const dsCloudBase = gdal.open(filename, 'w', 'GTiff',
+    dsT2m.rasterSize.x, dsT2m.rasterSize.y, 1, gdal.GDT_Float64);
 
 // Mapping to ExprTk.js variables is by (case-insensitive) names
 // and does not depend on the order

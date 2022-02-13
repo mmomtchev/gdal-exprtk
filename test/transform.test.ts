@@ -76,8 +76,8 @@ describe('RasterTransformStream', () => {
 
     mux.pipe(espyEstimation).pipe(ws);
     espyEstimation.on('error', (err) => {
-      assert.match(err.message, /wrong number of input arguments/)
-      done()
+      assert.match(err.message, /wrong number of input arguments/);
+      done();
     });
   });
 });
