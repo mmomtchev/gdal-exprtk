@@ -22,9 +22,9 @@
   },
   "homepage": "https://github.com/mmomtchev/gdal-exprtk#readme",
   "dependencies": {
-    "@types/node": "^17.0.17",
-    "exprtk.js": "^2.0.0-alpha.0",
-    "gdal-async": "^3.4.1"
+    "@types/node": ">=12.0.0",
+    "exprtk.js": ">=2.0.0",
+    "gdal-async": ">=3.4.0"
   },
   "devDependencies": {
     "@mmomtchev/documentation": "^14.0.0",
