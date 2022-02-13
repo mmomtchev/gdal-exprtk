@@ -34,7 +34,7 @@ describe('RasterTransformStream', () => {
 
     const ws = dsCloudBase.bands.get(1).pixels.createWriteStream();
 
-    const espyEstimation = new RasterTransform({ type: Float64Array, expr });
+    const espyEstimation = new RasterTransform({ expr });
 
     mux.pipe(espyEstimation).pipe(ws);
     return assert.isFulfilled(finished(ws).then(() => {
@@ -60,7 +60,7 @@ describe('RasterTransformStream', () => {
 
   it('propagates errors', (done) => {
     const dsT2m = gdal.open(path.resolve(__dirname, 'data', 'AROME_T2m_10.tiff'));
-  
+
     const filename = `/vsimem/ds_mux_test.${String(
       Math.random()
     ).substring(2)}.tmp.tiff`;
@@ -72,7 +72,7 @@ describe('RasterTransformStream', () => {
 
     const ws = dsCloudBase.bands.get(1).pixels.createWriteStream();
 
-    const espyEstimation = new RasterTransform({ type: Float64Array, expr });
+    const espyEstimation = new RasterTransform({ expr });
 
     mux.pipe(espyEstimation).pipe(ws);
     espyEstimation.on('error', (err) => {

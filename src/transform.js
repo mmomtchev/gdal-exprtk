@@ -50,7 +50,6 @@ const exprtk = require('exprtk.js');
 class RasterTransform extends Transform {
   constructor(opts) {
     super({ ...opts, objectMode: true });
-    this.type = opts.type;
     this.expr = opts.expr;
   }
 
