@@ -1,0 +1,9 @@
+{
+  "spec": "test/*.test.[tj]s",
+  "require": [
+    "ts-node/register"
+  ],
+  "timeout": "10000",
+  "reporter": "tap",
+  "v8-expose-gc": true
+}

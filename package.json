@@ -1,0 +1,47 @@
+{
+  "name": "gdal-exprtk",
+  "version": "1.0.0",
+  "description": "ExprTk.js plugin for gdal-async",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mmomtchev/gdal-exprtk.git"
+  },
+  "keywords": [
+    "gdal",
+    "exprtk",
+    "async"
+  ],
+  "author": "Momtchil Momtchev <momtchil@momtchev.com>",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/mmomtchev/gdal-exprtk/issues"
+  },
+  "homepage": "https://github.com/mmomtchev/gdal-exprtk#readme",
+  "dependencies": {
+    "@types/node": "^17.0.17",
+    "exprtk.js": "^2.0.0-alpha.0",
+    "gdal-async": "^3.4.1"
+  },
+  "devDependencies": {
+    "@mmomtchev/documentation": "^14.0.0",
+    "@types/chai": "^4.3.0",
+    "@types/chai-as-promised": "^7.1.5",
+    "@types/mocha": "^9.1.0",
+    "@typescript-eslint/eslint-plugin": "^5.11.0",
+    "@typescript-eslint/parser": "^5.11.0",
+    "chai": "^4.3.6",
+    "chai-as-promised": "^7.1.1",
+    "documentation-polyglot": "^1.0.0",
+    "eslint": "^8.9.0",
+    "eslint-plugin-array-func": "^3.1.7",
+    "eslint-plugin-mocha": "^10.0.3",
+    "eslint-plugin-prefer-arrow": "^1.2.3",
+    "mocha": "^9.2.0",
+    "ts-node": "^10.5.0",
+    "typescript": "^4.5.5"
+  }
+}
