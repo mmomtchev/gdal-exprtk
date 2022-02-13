@@ -54,9 +54,8 @@ dsCloudBase.close();
 ## With `calcAsync`
 
 ```ts
-const output = `/vsimem/cloudbase_.tiff`;
-const T2m = await gdal.openAsync(path.resolve(__dirname, 'data', 'AROME_T2m_10.tiff'));
-const D2m = await gdal.openAsync(path.resolve(__dirname, 'data', 'AROME_D2m_10.tiff'));
+const T2m = await gdal.openAsync('AROME_T2m_10.tiff'));
+const D2m = await gdal.openAsync('AROME_D2m_10.tiff'));
 const size = await T2m.rasterSizeAsync;
 
 const filename = `/vsimem/AROME_CLOUDBASE.tiff`;
