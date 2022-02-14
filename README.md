@@ -92,15 +92,18 @@ The command-line utility supports both JS functions and ExprTk expressions. It u
 
 With ExprTk expression:
 ```bash
-node src/gdal_calc.js  -i AROME_D2m_10.tiff=d -i tAROME_T2m_10.tiff=t -e -o CLOUDBASE.tiff -c '125*(t-d)' -f GTiff -t Float64
+node src/gdal_calc.js -i AROME_D2m_10.tiff=d -i AROME_T2m_10.tiff=t -e -o CLOUDBASE.tiff \
+    -c '125*(t-d)' -f GTiff -t Float64
 ```
 
 With JS function:
 ```bash
-node src/gdal_calc.js  -i AROME_D2m_10.tiff=d -i AROME_T2m_10.tiff=t -j -o CLOUDBASE.tiff -c '125*(t-d)' -f GTiff -t Float64
+node src/gdal_calc.js -i AROME_D2m_10.tiff=d -i AROME_T2m_10.tiff=t -j -o CLOUDBASE.tiff \
+    -c '125*(t-d)' -f GTiff -t Float64
 ```
 
 With multiband files and automatic variable naming:
 ```bash
-node src/gdal_calc.js  -i multiband.tif:1 -i multiband.tif:2 -j -o CLOUDBASE.tiff -c '(a+b)/2' -f GTiff -t Float64
+node src/gdal_calc.js -i multiband.tif:1 -i multiband.tif:2 -j -o CLOUDBASE.tiff \
+    -c '(a+b)/2' -f GTiff -t Float64
 ```
