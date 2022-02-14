@@ -1,5 +1,5 @@
 import * as gdal from 'gdal-async';
-import { Expression, Float64 as Float64Expression, TypedArray } from 'exprtk.js';
+import { TypedExpression, Float64 as Float64Expression, TypedArray } from 'exprtk.js';
 import { RasterTransform } from '..';
 
 import { finished as _finished } from 'stream';
@@ -18,7 +18,7 @@ describe('RasterTransformStream', () => {
   // where T2m is the temperature at 2m and Td2m is the dew point at 2m
   const expr = new Float64Expression('125 * (T2m - D2m)');
 
-  function testMux(expr: Expression<TypedArray>, blockOptimize?: boolean) {
+  function testMux(expr: TypedExpression<TypedArray>, blockOptimize?: boolean) {
     const dsT2m = gdal.open(path.resolve(__dirname, 'data', 'AROME_T2m_10.tiff'));
     const dsD2m = gdal.open(path.resolve(__dirname, 'data', 'AROME_D2m_10.tiff'));
 
