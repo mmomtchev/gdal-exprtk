@@ -21,7 +21,7 @@ When it is released
 
 ```ts
 import * as gdal from 'gdal-async';
-import { Expression, Float64 as Float64Expression, TypedArray } from 'exprtk.js';
+import { Float64 as Float64Expression } from 'exprtk.js';
 import { RasterTransform } from 'gdal-exprtk';
 
 import { finished as _finished } from 'stream';
@@ -59,6 +59,10 @@ dsCloudBase.close();
 ## With `calcAsync`
 
 ```ts
+import * as gdal from 'gdal-async';
+import { Float64 as Float64Expression } from 'exprtk.js';
+import { calcAsync } from 'gdal-exprtk';
+
 const T2m = await gdal.openAsync('AROME_T2m_10.tiff'));
 const D2m = await gdal.openAsync('AROME_D2m_10.tiff'));
 const size = await T2m.rasterSizeAsync;
