@@ -4,7 +4,7 @@
   "description": "ExprTk.js plugin for gdal-async",
   "main": "index.js",
   "scripts": {
-    "test": "test",
+    "test": "mocha",
     "c8": "npx c8 mocha",
     "lcov": "npx c8 report --reporter=text-lcov > coverage/tests.lcov",
     "codecov": "curl -s https://codecov.io/bash | bash"
