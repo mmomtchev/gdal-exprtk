@@ -1,0 +1,35 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "pwa-node",
+            "request": "launch",
+            "name": "Launch Program",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "program": "${workspaceFolder}/src/gdal_calc.js",
+            "args": [
+                "-i",
+                "test/data/AROME_D2m_10.tiff=d",
+                "-i",
+                "test/data/AROME_T2m_10.tiff=t",
+                "-o",
+                "/vsimem/temp.tiff",
+                "-f",
+                "GTiff",
+                "-t",
+                "Float64",
+                "-c",
+                "125*(t-d)",
+                "-e"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/**/*.js"
+            ]
+        }
+    ]
+}
