@@ -4,9 +4,7 @@ const exprtk = require('exprtk.js');
 /**
  * @interface RasterTransformOptions
  * @extends stream.TransformOptions
- * @property {Expression} fn Function to be applied on all data
- * @property {new (len: number) => TypedArray} type Typed array constructor
- * @property {number} maxParallel number of threads to use when fn is an ExprTk.js expression
+ * @property {Expression} expr Function to be applied on all data
  */
 
 
@@ -44,8 +42,7 @@ const exprtk = require('exprtk.js');
  * @extends stream.Transform
  * @constructor
  * @param {RasterTransformOptions} [options]
- * @param {Function|Expression} options.fn Function to be applied on all data
- * @param {new (len: number) => TypedArray} options.type Typed array constructor
+ * @param {Function|Expression} options.exr Function to be applied on all data
  */
 class RasterTransform extends Transform {
   constructor(opts) {
