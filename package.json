@@ -8,13 +8,15 @@
   },
   "scripts": {
     "test": "mocha",
-    "build": "npx yatag && npx documentation",
+    "build": "npm run build:lib && npm run build:doc",
+    "build:lib": "npx yatag",
+    "build:doc": "documentation readme --section=API lib/*.js",
     "c8": "npx c8 mocha",
     "lcov": "npx c8 report --reporter=text-lcov > coverage/tests.lcov",
     "codecov": "curl -s https://codecov.io/bash | bash",
-    "preversion": "npm run build && npm run test",
-    "version": "git add package.json",
-    "postversion": "git push && git push --tags && npm run doc:publish"
+    "preversion": "npm run build:lib && npm run test",
+    "version": "npm run build:doc && git add package.json README.md",
+    "postversion": "git push && git push --tags"
   },
   "repository": {
     "type": "git",
