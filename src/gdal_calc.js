@@ -108,11 +108,18 @@ for (const name of Object.keys(symbols)) {
 }
 console.log(`${op.toString().replace(/\n/g, '')} => ${outputType}`);
 
+let noData;
+if (opts.n) {
+    noData = +opts.n;
+    console.log('NoData: ', noData);
+    output.bands.get(1).noDataValue = noData;
+}
+
 let q;
 if (opts.e) {
-    q = calcAsync(symbols, output.bands.get(1), op, { convertNoData: true });
+    q = calcAsync(symbols, output.bands.get(1), op, { convertNoData: noData !== undefined });
 } else {
-    q = gdal.calcAsync(symbols, output.bands.get(1), op, { convertNoData: true });
+    q = gdal.calcAsync(symbols, output.bands.get(1), op, { convertNoData: noData !== undefined });
 }
 
 q.then(() => {
