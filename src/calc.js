@@ -3,8 +3,15 @@ const gdal = require('gdal-async');
 const RasterTransform = require('./transform.js');
 
 /**
+ * @callback ProgressCb
+ * @param {number} complete
+ * @typedef {( complete: number ) => void} ProgressCb
+ */
+
+/**
  * @typedef {object} CalcOptions
  * @property {boolean} [convertNoData]
+ * @property {ProgressCb} [progress_cb]
  */
 
 /**
@@ -27,14 +34,15 @@ const RasterTransform = require('./transform.js');
  * There is no sync version.
  *
  * @function calcAsync
- * @param {Record<string, RasterBand>} inputs An object containing all the input bands
- * @param {RasterBand} output Output raster band
- * @param {Expression<T>} expr ExprTk.js expression
+ * @param {Record<string, gdal.RasterBand>} inputs An object containing all the input bands
+ * @param {gdal.RasterBand} output Output raster band
+ * @param {Expression} expr ExprTk.js expression
  * @param {CalcOptions} [options] Options
  * @param {boolean} [options.convertNoData=false] Input bands will have their
  * NoData pixels converted toNaN and a NaN output value of the given function
  * will be converted to a NoData pixel, provided that the output raster band
  * has its `RasterBand.noDataValue` set
+ * @param {ProgressCb} [options.progress_cb=undefined] Progress callback
  * @return {Promise<void>}
  * @static
  *
@@ -58,6 +66,7 @@ const RasterTransform = require('./transform.js');
 
 function calcAsync(inputs, output, expr, options) {
     const convertNoData = (options || {}).convertNoData;
+    const progress = (options || {}).progress_cb;
 
     for (const inp of Object.keys(inputs)) {
         if (!(inputs[inp] instanceof gdal.RasterBand)) {
@@ -84,6 +93,7 @@ function calcAsync(inputs, output, expr, options) {
                 throw new RangeError('All raster bands dimensions must match');
             }
         }
+        const length = values[1].x * values[1].y;
 
         const streams = Object.keys(inputs)
             .map((inp) => ({ id: inp, stream: inputs[inp].pixels.createReadStream({ convertNoData }) }))
@@ -100,6 +110,14 @@ function calcAsync(inputs, output, expr, options) {
         return new Promise((resolve, reject) => {
             mux.on('error', reject);
             ws.on('error', reject);
+            if (progress) {
+                let processed = 0;
+                mux.on('data', (chunk) => {
+                    processed += chunk[Object.keys(chunk)[0]].length;
+                    const done = processed / length;
+                    progress(done);
+                });
+            }
 
             mux.pipe(xform).pipe(ws);
 

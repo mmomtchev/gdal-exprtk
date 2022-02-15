@@ -24,10 +24,18 @@ describe('calcAsync', () => {
         // Underground clouds are very rare
         (await cloudBase.bands.getAsync(1)).noDataValue = -1e38;
 
+        let done = 0;
         await calcAsync({
             T2m: await T2m.bands.getAsync(1),
             D2m: await D2m.bands.getAsync(1)
-        }, await cloudBase.bands.getAsync(1), espyExpr, { convertNoData: true });
+        }, await cloudBase.bands.getAsync(1), espyExpr, {
+            convertNoData: true,
+            progress_cb: (complete) => {
+                assert.isAbove(complete, done);
+                done = complete;
+            }
+        });
+        assert.closeTo(done, 1, 1e-6);
 
         const t2mData = await (await T2m.bands.getAsync(1)).pixels.readAsync(0, 0, size.x, size.y);
         const d2mData = await (await D2m.bands.getAsync(1)).pixels.readAsync(0, 0, size.x, size.y);

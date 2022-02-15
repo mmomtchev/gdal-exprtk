@@ -118,19 +118,30 @@ if (opts.n) {
     }
 }
 
+let nextMark = 0.1;
+function progress(complete) {
+    if (complete > nextMark) {
+        if (!opts.q)
+            process.stdout.write(` ${Math.round(nextMark * 100)}% `);
+        nextMark += 0.1;
+    }
+}
+
 let q;
 if (opts.e) {
     q = calcAsync(symbols, output.bands.get(1), op, {
-        convertNoData: noData !== undefined
+        convertNoData: noData !== undefined,
+        progress_cb: progress
     });
 } else {
     q = gdal.calcAsync(symbols, output.bands.get(1), op, {
         convertNoData: noData !== undefined,
-        convertInput: noData !== undefined
+        convertInput: noData !== undefined,
+        progress_cb: progress
     });
 }
 
 q.then(() => {
     output.close();
-    console.log('Done');
+    console.log('\nDone');
 });
