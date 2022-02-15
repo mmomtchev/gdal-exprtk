@@ -102,8 +102,14 @@ node src/gdal_calc.js -i AROME_D2m_10.tiff=d -i AROME_T2m_10.tiff=t -j -o CLOUDB
     -c 'return 125*(t-d);' -f GTiff -t Float64
 ```
 
-With multiband files and automatic variable naming:
+With multiband input files and automatic variable naming:
 ```bash
-node src/gdal_calc.js -i multiband.tif:1 -i multiband.tif:2 -j -o CLOUDBASE.tiff \
+node src/gdal_calc.js -i multiband.tif:1 -i multiband.tif:2 -j -o output.tiff \
     -c '(a+b)/2' -f GTiff -t Float64
+```
+
+Producing a multiband output file:
+```bash
+node src/gdal_calc.js -i multiband.tif:1=x -i multiband.tif:2=y -e -o output.tiff \
+    -c '(x+y)/2' -c '(x-y)/2' -f GTiff -t Float64
 ```

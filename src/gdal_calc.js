@@ -8,13 +8,13 @@ const { program } = require('commander');
 program
     .requiredOption('-i <input>', 'input dataset, dataset[:band]=var', collect)
     .requiredOption('-o <output>', 'ouput dataset')
-    .requiredOption('-c <transform>', 'expression to be applied')
+    .requiredOption('-c <transform>', 'expression to be applied', collect)
     .requiredOption('-f <format>', 'output data format')
     .option('-j', 'JS mode (default)')
     .option('-e', 'ExprTk mode')
     .option('-q', 'quiet mode')
     .option('-t <type>', 'output data type: {Byte/Int16/UInt16/UInt32/Int32/Float32/Float64}')
-    .option('-n <NoData>', 'NoData value to use for the output dataset')
+    .option('-n <NoData>', 'NoData value to use for the output dataset', collect)
     .parse();
 
 function collect(val, memo) {
@@ -88,60 +88,72 @@ for (const inp of opts.i) {
     }
 }
 
-let op;
-if (opts.e) {
-    let eType;
-    for (const t of Object.keys(exprtk))
-        if (exprtk[t].allocator === gdal.fromDataType(outputType))
-            eType = exprtk[t];
-    op = new eType(opts.c);
-} else {
-    op = new Function(...Object.keys(symbols), opts.c);
-}
-
-const output = gdal.open(opts.o, 'w', opts.f, rasterSize.x, rasterSize.y, 1, outputType);
+const output = gdal.open(opts.o, 'w', opts.f, rasterSize.x, rasterSize.y, opts.c.length, outputType);
 
 console.log('Using: ');
 for (const name of Object.keys(symbols)) {
     const s = symbols[name];
     console.log(`\t${name} = ${s.description || s.ds.description}${s.id !== undefined ? `:${s.id}` : ''}`);
 }
-console.log(`${op.toString().replace(/\n/g, '')} => ${outputType}`);
-
-let noData;
-if (opts.n) {
-    noData = +opts.n;
-    console.log('NoData: ', noData);
-    output.bands.get(1).noDataValue = noData;
-    if (outputType !== gdal.GDT_Float32 && outputType !== gdal.GDT_Float64) {
-        console.warn('NoData/NaN conversion does not work with integer types');
-    }
-}
 
 let nextMark = 0.1;
-function progress(complete) {
-    if (complete > nextMark) {
+const bandComplete = {};
+function progress (band, complete) {
+    bandComplete[band] = complete;
+    const total = Object.keys(bandComplete).reduce((a, b) => a + bandComplete[b], 0) / opts.c.length;
+    if (total > nextMark) {
         if (!opts.q)
             process.stdout.write(` ${Math.round(nextMark * 100)}% `);
         nextMark += 0.1;
     }
 }
 
-let q;
-if (opts.e) {
-    q = calcAsync(symbols, output.bands.get(1), op, {
-        convertNoData: noData !== undefined,
-        progress_cb: progress
-    });
-} else {
-    q = gdal.calcAsync(symbols, output.bands.get(1), op, {
-        convertNoData: noData !== undefined,
-        convertInput: noData !== undefined,
-        progress_cb: progress
-    });
+const q = [];
+for (const b in opts.c) {
+    const band = +b + 1;
+
+    let op;
+    if (opts.e) {
+        let eType;
+        for (const t of Object.keys(exprtk))
+            if (exprtk[t].allocator === gdal.fromDataType(outputType))
+                eType = exprtk[t];
+        op = new eType(opts.c[b]);
+    } else {
+        op = new Function(...Object.keys(symbols), opts.c[b]);
+    }
+
+    console.log(`Band ${band}: ${op.toString().replace(/\n/g, '')} => ${outputType}`);
+
+    let noData;
+    if (opts.n) {
+        noData = opts.n[b] !== undefined ? +opts.n[b] : + opts.n[0];
+        console.log('NoData: ', noData);
+        output.bands.get(band).noDataValue = noData;
+        if (outputType !== gdal.GDT_Float32 && outputType !== gdal.GDT_Float64) {
+            console.warn('NoData/NaN conversion does not work with integer types');
+        }
+    }
+
+    if (opts.e) {
+        q.push(calcAsync(symbols, output.bands.get(band), op, {
+            convertNoData: noData !== undefined,
+            progress_cb: progress.bind(null, band)
+        }));
+    } else {
+        q.push(gdal.calcAsync(symbols, output.bands.get(band), op, {
+            convertNoData: noData !== undefined,
+            convertInput: noData !== undefined,
+            progress_cb: progress.bind(null, band)
+        }));
+    }
+
 }
 
-q.then(() => {
+Promise.all(q).then(() => {
     output.close();
     console.log('\nDone');
+}).catch((e) => {
+    console.error(e.message);
+    process.exit(1);
 });

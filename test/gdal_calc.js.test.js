@@ -8,6 +8,7 @@ describe('CLI tool', () => {
     const d2m = path.resolve(__dirname, 'data', `AROME_D2m_10.tiff`);
     const t2m = path.resolve(__dirname, 'data', `AROME_T2m_10.tiff`);
     const noData = path.resolve(__dirname, 'data', `dem_azimuth50_pa.tiff`);
+    const mband = path.resolve(__dirname, 'data', `multiband.tif`);
 
     it('should support JS functions', () => {
         const output = path.resolve(__dirname, 'temp', `tmp.jsfunc.${process.pid}.tiff`);
@@ -101,6 +102,40 @@ describe('CLI tool', () => {
 
     it('should support ignoring the noData value', () => {
         const output = path.resolve(__dirname, 'temp', `tmp.nodata2.${process.pid}.tiff`);
+        const args = [
+            '-i',
+            mband + ':1=x',
+            '-i',
+            mband + ':2=y',
+            '-o',
+            output,
+            '-f',
+            'GTiff',
+            '-t',
+            'Float32',
+            '-c',
+            'x + y',
+            '-c',
+            'x - y',
+            '-e'
+        ];
+        execFileSync('node', [
+            path.resolve(__dirname, '..', 'src', 'gdal_calc.js'),
+            ...args,
+            '-e'
+        ]);
+        const ds = gdal.open(output);
+        assert.equal(ds.bands.count(), 2);
+        assert.equal(gdal.checksumImage(ds.bands.get(1)), 31733);
+        assert.equal(gdal.checksumImage(ds.bands.get(2)), 16620);
+        assert.equal(ds.bands.get(1).dataType, gdal.GDT_Float32);
+        assert.equal(ds.bands.get(2).dataType, gdal.GDT_Float32);
+        ds.close();
+        fs.unlinkSync(output);
+    });
+
+    it('should support producing multiple bands', () => {
+        const output = path.resolve(__dirname, 'temp', `tmp.multiband.${process.pid}.tiff`);
         const args = [
             '-i',
             noData,
