@@ -5,27 +5,36 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "mocha",
+            "program": "${workspaceFolder}/node_modules/mocha/lib/cli/cli.js",
+            "request": "launch",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "type": "pwa-node"
+        },
+        {
             "type": "pwa-node",
             "request": "launch",
-            "name": "Launch Program",
+            "name": "CLI",
             "skipFiles": [
                 "<node_internals>/**"
             ],
             "program": "${workspaceFolder}/src/gdal_calc.js",
             "args": [
                 "-i",
-                "test/data/AROME_D2m_10.tiff=d",
-                "-i",
-                "test/data/AROME_T2m_10.tiff=t",
+                "test/data/dem_azimuth50_pa.img",
                 "-o",
-                "/vsimem/temp.tiff",
+                "temp.tiff",
                 "-f",
                 "GTiff",
                 "-t",
                 "Float64",
                 "-c",
-                "125*(t-d)",
-                "-e"
+                "a + 1",
+                "-j",
+                "-n",
+                "0"
             ],
             "outFiles": [
                 "${workspaceFolder}/**/*.js"

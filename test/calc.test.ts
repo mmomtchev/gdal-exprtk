@@ -35,7 +35,7 @@ describe('calcAsync', () => {
 
         // check every 1000th element, there are lots of them
         for (let i = 0; i < cbData.length; i += 1000) {
-            assert.closeTo(cbData[i], espyExpr.eval({T2m: t2mData[i], D2m: d2mData[i]}), 1e-6);
+            assert.closeTo(cbData[i], espyExpr.eval({ T2m: t2mData[i], D2m: d2mData[i] }), 1e-6);
         }
         cloudBase.close();
         gdal.vsimem.release(tempFile);
@@ -53,6 +53,28 @@ describe('calcAsync', () => {
                 espyExpr),
             /dimensions must match/
         );
+    });
+
+    it('should support converting noData', async () => {
+        const tempFile = `/vsimem/convert_nodata_${String(Math.random()).substring(2)}.tiff`;
+        const plus1 = new Float64Expression('a + 1');
+        const a = gdal.open(path.resolve(__dirname, 'data', 'dem_azimuth50_pa.tiff')).bands.get(1);
+        const output = gdal.open(tempFile, 'w', 'GTiff',
+            a.ds.rasterSize.x, a.ds.rasterSize.y, 1, gdal.GDT_Float64).bands.get(1);
+        output.noDataValue = -10;
+        await calcAsync({a}, output, plus1, { convertNoData: true });
+        assert.closeTo(output.pixels.get(0, 0), -10, 1e-9);
+    });
+
+    it('should support ignoring noData', async () => {
+        const tempFile = `/vsimem/convert_nodata_${String(Math.random()).substring(2)}.tiff`;
+        const plus1 = new Float64Expression('a + 1');
+        const a = gdal.open(path.resolve(__dirname, 'data', 'dem_azimuth50_pa.tiff')).bands.get(1);
+        const output = gdal.open(tempFile, 'w', 'GTiff',
+            a.ds.rasterSize.x, a.ds.rasterSize.y, 1, gdal.GDT_Float64).bands.get(1);
+        output.noDataValue = -10;
+        await calcAsync({ a }, output, plus1, { convertNoData: false });
+        assert.closeTo(output.pixels.get(0, 0), 1, 1e-9);
     });
 
     it('should reject when data types do not match', () => {

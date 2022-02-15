@@ -27,8 +27,8 @@ function nextVar(prev) {
     if (prev === undefined || prev.length == 0) return 'a';
     let p = prev.length;
     while (p > 0) {
-        if (prev[p-1] === 'z') {
-            prev = prev.substring(0, p-1) + 'a' + prev.substring(p);
+        if (prev[p - 1] === 'z') {
+            prev = prev.substring(0, p - 1) + 'a' + prev.substring(p);
             p--;
             continue;
         }
@@ -113,13 +113,21 @@ if (opts.n) {
     noData = +opts.n;
     console.log('NoData: ', noData);
     output.bands.get(1).noDataValue = noData;
+    if (outputType !== gdal.GDT_Float32 && outputType !== gdal.GDT_Float64) {
+        console.warn('NoData/NaN conversion does not work with integer types');
+    }
 }
 
 let q;
 if (opts.e) {
-    q = calcAsync(symbols, output.bands.get(1), op, { convertNoData: noData !== undefined });
+    q = calcAsync(symbols, output.bands.get(1), op, {
+        convertNoData: noData !== undefined
+    });
 } else {
-    q = gdal.calcAsync(symbols, output.bands.get(1), op, { convertNoData: noData !== undefined });
+    q = gdal.calcAsync(symbols, output.bands.get(1), op, {
+        convertNoData: noData !== undefined,
+        convertInput: noData !== undefined
+    });
 }
 
 q.then(() => {
