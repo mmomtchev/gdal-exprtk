@@ -110,6 +110,7 @@ function calcAsync(inputs, output, expr, options) {
         return new Promise((resolve, reject) => {
             mux.on('error', reject);
             ws.on('error', reject);
+            xform.on('error', reject);
             if (progress) {
                 let processed = 0;
                 mux.on('data', (chunk) => {
