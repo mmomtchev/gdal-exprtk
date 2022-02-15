@@ -10,19 +10,21 @@ const RasterTransform = require('./transform.js');
 /**
  * Compute a new output band as a pixel-wise function of given input bands
  *
- * This is an alternative implementation of `gdal_calc.py`
+ * This is an alternative implementation of `gdal_calc.py`.
  * 
  * It is identical to the one in gdal-async except that it accepts an ExprTK.js
- * expression as function instead of a JS function
+ * expression as function instead of a JS function.
  * 
  * It's main advantage is that it does not solicit the V8's main thread for any
  * operation that is not O(1) - all computation is performed in background
- * async threads
+ * async threads. The only exception is the `convertNoData` option with `gdal-async@3.4`
+ * which is implemented in JS. `gdal-async@3.5` supports C++ conversion of NoData
+ * to NaN.
  *
  * It internally uses a {@link RasterTransform} which can also be used directly for
  * a finer-grained control over the transformation.
  *
- * There is no sync version
+ * There is no sync version.
  *
  * @function calcAsync
  * @param {Record<string, RasterBand>} inputs An object containing all the input bands
