@@ -1,4 +1,4 @@
 module.exports = {
-    RasterTransform: require('./src/transform.js'),
-    calcAsync: require('./src/calc.js')
+    RasterTransform: require('./lib/transform.js'),
+    calcAsync: require('./lib/calc.js')
 };

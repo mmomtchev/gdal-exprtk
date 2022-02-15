@@ -20,7 +20,7 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}/src/gdal_calc.js",
+            "program": "${workspaceFolder}/bin/gdal_calc.js",
             "args": [
                 "-i",
                 "test/data/dem_azimuth50_pa.img",

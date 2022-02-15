@@ -4,6 +4,8 @@ const path = require('path');
 const { execFileSync } = require('child_process');
 const { assert } = require('chai');
 
+const exe = path.resolve(__dirname, '..', 'bin', 'gdal_calc.js');
+
 describe('CLI tool', () => {
     const d2m = path.resolve(__dirname, 'data', `AROME_D2m_10.tiff`);
     const t2m = path.resolve(__dirname, 'data', `AROME_T2m_10.tiff`);
@@ -27,10 +29,8 @@ describe('CLI tool', () => {
             'return 125*(t-d);',
             '-j'
         ];
-        execFileSync('node', [
-            path.resolve(__dirname, '..', 'src', 'gdal_calc.js'),
-            ...args,
-        ]);
+        execFileSync('node', [exe, ...args]);
+
         const ds = gdal.open(output);
         assert.equal(gdal.checksumImage(ds.bands.get(1)), 38300);
         assert.equal(ds.bands.get(1).dataType, gdal.GDT_Float64);
@@ -56,11 +56,8 @@ describe('CLI tool', () => {
             '125*(t-d)',
             '-e'
         ];
-        execFileSync('node', [
-            path.resolve(__dirname, '..', 'src', 'gdal_calc.js'),
-            ...args,
-            '-e'
-        ]);
+        execFileSync('node', [exe, ...args]);
+
         const ds = gdal.open(output);
         assert.equal(gdal.checksumImage(ds.bands.get(1)), 38300);
         assert.equal(ds.bands.get(1).dataType, gdal.GDT_Float64);
@@ -86,11 +83,8 @@ describe('CLI tool', () => {
             '-n',
             '-10'
         ];
-        execFileSync('node', [
-            path.resolve(__dirname, '..', 'src', 'gdal_calc.js'),
-            ...args,
-            '-e'
-        ]);
+        execFileSync('node', [exe, ...args]);
+
         const ds = gdal.open(output);
         assert.equal(gdal.checksumImage(ds.bands.get(1)), 22455);
         assert.equal(ds.bands.get(1).dataType, gdal.GDT_Float32);
@@ -119,11 +113,8 @@ describe('CLI tool', () => {
             'x - y',
             '-e'
         ];
-        execFileSync('node', [
-            path.resolve(__dirname, '..', 'src', 'gdal_calc.js'),
-            ...args,
-            '-e'
-        ]);
+        execFileSync('node', [exe, ...args]);
+
         const ds = gdal.open(output);
         assert.equal(ds.bands.count(), 2);
         assert.equal(gdal.checksumImage(ds.bands.get(1)), 31733);
@@ -149,11 +140,8 @@ describe('CLI tool', () => {
             'a + 1',
             '-e'
         ];
-        execFileSync('node', [
-            path.resolve(__dirname, '..', 'src', 'gdal_calc.js'),
-            ...args,
-            '-e'
-        ]);
+        execFileSync('node', [exe, ...args]);
+        
         const ds = gdal.open(output);
         assert.equal(gdal.checksumImage(ds.bands.get(1)), 53409);
         assert.equal(ds.bands.get(1).dataType, gdal.GDT_Float32);

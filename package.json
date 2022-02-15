@@ -4,14 +4,17 @@
   "description": "ExprTk.js plugin for gdal-async",
   "main": "index.js",
   "bin": {
-    "gdal_calc.js": "./src/gdal_calc.js"
+    "gdal_calc.js": "./bin/gdal_calc.js"
   },
   "scripts": {
     "test": "mocha",
-    "build": "npx yatag",
+    "build": "npx yatag && npx documentation",
     "c8": "npx c8 mocha",
     "lcov": "npx c8 report --reporter=text-lcov > coverage/tests.lcov",
-    "codecov": "curl -s https://codecov.io/bash | bash"
+    "codecov": "curl -s https://codecov.io/bash | bash",
+    "preversion": "npm run build && npm run test",
+    "version": "git add package.json",
+    "postversion": "git push && git push --tags && npm run doc:publish"
   },
   "repository": {
     "type": "git",
