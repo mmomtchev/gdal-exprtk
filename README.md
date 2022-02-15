@@ -99,7 +99,7 @@ node src/gdal_calc.js -i AROME_D2m_10.tiff=d -i AROME_T2m_10.tiff=t -e -o CLOUDB
 With JS function:
 ```bash
 node src/gdal_calc.js -i AROME_D2m_10.tiff=d -i AROME_T2m_10.tiff=t -j -o CLOUDBASE.tiff \
-    -c '125*(t-d)' -f GTiff -t Float64
+    -c 'return 125*(t-d);' -f GTiff -t Float64
 ```
 
 With multiband files and automatic variable naming:
