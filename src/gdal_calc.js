@@ -6,15 +6,18 @@ const { calcAsync } = require('..');
 const { program } = require('commander');
 
 program
-    .requiredOption('-i <input>', 'input dataset, dataset[:band]=var', collect)
+    .requiredOption('-i <input>',
+        'input dataset, dataset[:band]=var, may be present multiple times for multiple inputs', collect)
     .requiredOption('-o <output>', 'ouput dataset')
-    .requiredOption('-c <transform>', 'expression to be applied', collect)
+    .requiredOption('-c <transform>',
+        'expression to be applied, may be present multiple times for multiple bands in the output file', collect)
     .requiredOption('-f <format>', 'output data format')
     .option('-j', 'JS mode (default)')
     .option('-e', 'ExprTk mode')
     .option('-q', 'quiet mode')
     .option('-t <type>', 'output data type: {Byte/Int16/UInt16/UInt32/Int32/Float32/Float64}')
-    .option('-n <NoData>', 'NoData value to use for the output dataset', collect)
+    .option('-n <NoData>',
+        'NoData value to use for the output dataset, may be present multiple times for each output band', collect)
     .parse();
 
 function collect(val, memo) {

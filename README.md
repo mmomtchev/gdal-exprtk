@@ -1,7 +1,7 @@
 # gdal-exprtk
 
 [![License: Apache 2.0](https://img.shields.io/github/license/mmomtchev/gdal-exprtk)](https://github.com/mmomtchev/gdal-exprtk/blob/master/LICENSE)
-[![npm version](https://img.shields.io/npm/v/gdal-exprtk)](https://www.npmjs.com/package/rlayers)
+[![npm version](https://img.shields.io/npm/v/gdal-exprtk)](https://www.npmjs.com/package/gdal-exprtk)
 [![Node.js CI](https://github.com/mmomtchev/gdal-exprtk/actions/workflows/node.js.yml/badge.svg)](https://github.com/mmomtchev/gdal-exprtk/actions/workflows/node.js.yml)
 [![codecov](https://codecov.io/gh/mmomtchev/gdal-exprtk/branch/main/graph/badge.svg?token=KwCAUjdnyZ)](https://codecov.io/gh/mmomtchev/gdal-exprtk)
 
@@ -13,9 +13,73 @@ Requires `gdal-async@3.4` and `ExprTk.js@2.0`.
 
 # Installation
 
-When it is released
+To use as a library in a project:
+
+`npm install --save gdal-exprtk`
+
+Install globally to use the command-line version:
+
+`sudo npm install -g gdal-exprtk`
 
 # Usage
+
+## Command-line utility
+
+The command-line utility supports both JS functions and ExprTk expressions. It uses parallel processing whenever possible.
+
+With ExprTk expression:
+```bash
+gdal_calc.js -i AROME_D2m_10.tiff=d -i AROME_T2m_10.tiff=t -e -o CLOUDBASE.tiff \
+    -c '125*(t-d)' -f GTiff -t Float64
+```
+
+With JS function:
+```bash
+gdal_calc.js -i AROME_D2m_10.tiff=d -i AROME_T2m_10.tiff=t -j -o CLOUDBASE.tiff \
+    -c 'return 125*(t-d);' -f GTiff -t Float64
+```
+
+With multiband input files and automatic variable naming:
+```bash
+gdal_calc.js -i multiband.tif:1 -i multiband.tif:2 -j -o output.tiff \
+    -c '(a+b)/2' -f GTiff -t Float64
+```
+
+Producing a multiband output file:
+```bash
+gdal_calc.js -i multiband.tif:1=x -i multiband.tif:2=y -e -o output.tiff \
+    -c '(x+y)/2' -c '(x-y)/2' -f GTiff -t Float64
+```
+
+## With `calcAsync`
+
+```ts
+import * as gdal from 'gdal-async';
+import { Float64 as Float64Expression } from 'exprtk.js';
+import { calcAsync } from 'gdal-exprtk';
+
+const T2m = await gdal.openAsync('AROME_T2m_10.tiff'));
+const D2m = await gdal.openAsync('AROME_D2m_10.tiff'));
+const size = await T2m.rasterSizeAsync;
+
+const filename = `/vsimem/AROME_CLOUDBASE.tiff`;
+const dsCloudBase = gdal.open(filename, 'w', 'GTiff',
+    size.x, size.y, 1, gdal.GDT_Float64);
+
+// Espy's estimation for cloud base height
+const espyExpr = new Float64Expression('125 * (T2m - D2m)');
+
+// This is required for the automatic NoData handling
+// (it will get converted from/to NaN)
+(await cloudBase.bands.getAsync(1)).noDataValue = -1e38;
+
+// Mapping to ExprTk.js variables is by (case-insensitive) name
+// and does not depend on the order
+await calcAsync({
+    T2m: await T2m.bands.getAsync(1),
+    D2m: await D2m.bands.getAsync(1)
+}, await cloudBase.bands.getAsync(1), espyExpr, { convertNoData: true });
+```
 
 ## As a Node.js Streams-compatible Transform
 
@@ -54,62 +118,4 @@ const espyEstimation = new RasterTransform({ type: Float64Array, expr });
 mux.pipe(espyEstimation).pipe(ws);
 await finished(ws);
 dsCloudBase.close();
-```
-
-## With `calcAsync`
-
-```ts
-import * as gdal from 'gdal-async';
-import { Float64 as Float64Expression } from 'exprtk.js';
-import { calcAsync } from 'gdal-exprtk';
-
-const T2m = await gdal.openAsync('AROME_T2m_10.tiff'));
-const D2m = await gdal.openAsync('AROME_D2m_10.tiff'));
-const size = await T2m.rasterSizeAsync;
-
-const filename = `/vsimem/AROME_CLOUDBASE.tiff`;
-const dsCloudBase = gdal.open(filename, 'w', 'GTiff',
-    size.x, size.y, 1, gdal.GDT_Float64);
-
-// Espy's estimation for cloud base height
-const espyExpr = new Float64Expression('125 * (T2m - D2m)');
-
-// This is required for the automatic NoData handling
-// (it will get converted from/to NaN)
-(await cloudBase.bands.getAsync(1)).noDataValue = -1e38;
-
-// Mapping to ExprTk.js variables is by (case-insensitive) name
-// and does not depend on the order
-await calcAsync({
-    T2m: await T2m.bands.getAsync(1),
-    D2m: await D2m.bands.getAsync(1)
-}, await cloudBase.bands.getAsync(1), espyExpr, { convertNoData: true });
-```
-
-## Command-line utility
-
-The command-line utility supports both JS functions and ExprTk expressions. It uses parallel processing whenever possible.
-
-With ExprTk expression:
-```bash
-node src/gdal_calc.js -i AROME_D2m_10.tiff=d -i AROME_T2m_10.tiff=t -e -o CLOUDBASE.tiff \
-    -c '125*(t-d)' -f GTiff -t Float64
-```
-
-With JS function:
-```bash
-node src/gdal_calc.js -i AROME_D2m_10.tiff=d -i AROME_T2m_10.tiff=t -j -o CLOUDBASE.tiff \
-    -c 'return 125*(t-d);' -f GTiff -t Float64
-```
-
-With multiband input files and automatic variable naming:
-```bash
-node src/gdal_calc.js -i multiband.tif:1 -i multiband.tif:2 -j -o output.tiff \
-    -c '(a+b)/2' -f GTiff -t Float64
-```
-
-Producing a multiband output file:
-```bash
-node src/gdal_calc.js -i multiband.tif:1=x -i multiband.tif:2=y -e -o output.tiff \
-    -c '(x+y)/2' -c '(x-y)/2' -f GTiff -t Float64
 ```
