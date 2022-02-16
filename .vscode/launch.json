@@ -23,7 +23,9 @@
             "program": "${workspaceFolder}/bin/gdal_calc.js",
             "args": [
                 "-i",
-                "test/data/dem_azimuth50_pa.img",
+                "test/data/AROME_D2m_10.tiff=d",
+                "-i",
+                "test/data/AROME_T2m_10.tiff=t",
                 "-o",
                 "temp.tiff",
                 "-f",
@@ -31,7 +33,7 @@
                 "-t",
                 "Float64",
                 "-c",
-                "a + 1",
+                "=../test/espy.js",
                 "-j",
                 "-n",
                 "0"

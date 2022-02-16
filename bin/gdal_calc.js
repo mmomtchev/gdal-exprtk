@@ -1,8 +1,10 @@
 #!/usr/bin/env node
+'use strict';
 
 const gdal = require('gdal-async');
 const exprtk = require('exprtk.js');
 const { calcAsync } = require('..');
+const fs = require('fs');
 const { program } = require('commander');
 
 program
@@ -10,7 +12,8 @@ program
         'input dataset, dataset[:band]=var, may be present multiple times for multiple inputs', collect)
     .requiredOption('-o <output>', 'ouput dataset')
     .requiredOption('-c <transform>',
-        'expression to be applied, may be present multiple times for multiple bands in the output file', collect)
+        'expression to be applied, may be present multiple times for multiple bands in the output file,' +
+        ' use =file[:function] to read from file', collect)
     .requiredOption('-f <format>', 'output data format')
     .option('-j', 'JS mode (default)')
     .option('-e', 'ExprTk mode')
@@ -101,7 +104,7 @@ for (const name of Object.keys(symbols)) {
 
 let nextMark = 0.1;
 const bandComplete = {};
-function progress (band, complete) {
+function progress(band, complete) {
     bandComplete[band] = complete;
     const total = Object.keys(bandComplete).reduce((a, b) => a + bandComplete[b], 0) / opts.c.length;
     if (total > nextMark) {
@@ -115,18 +118,45 @@ const q = [];
 for (const b in opts.c) {
     const band = +b + 1;
 
-    let op;
-    if (opts.e) {
-        let eType;
-        for (const t of Object.keys(exprtk))
-            if (exprtk[t].allocator === gdal.fromDataType(outputType))
-                eType = exprtk[t];
-        op = new eType(opts.c[b]);
-    } else {
-        op = new Function(...Object.keys(symbols), opts.c[b]);
+    let op, opText;
+    const calc = opts.c[b];
+    try {
+        if (opts.e) {
+            let eType;
+            for (const t of Object.keys(exprtk))
+                if (exprtk[t].allocator === gdal.fromDataType(outputType))
+                    eType = exprtk[t];
+            if (calc.startsWith('=')) {
+                op = new eType(fs.readFileSync(calc.substring(1), 'utf-8'));
+            } else {
+                op = new eType(calc);
+            }
+            opText = op.toString();
+        } else {
+            if (calc.startsWith('=')) {
+                const [file, name] = calc.split(':');
+                const fn = name ? require(file.substring(1))[name] : require(file.substring(1));
+                if (typeof fn !== 'function') {
+                    console.error(calc, 'is not a function');
+                    return 1;
+                }
+                op = function () {
+                    const arg = {};
+                    Object.keys(symbols).map((s, i) => arg[s] = arguments[i]);
+                    return fn(arg);
+                };
+                opText = fn.toString();
+            } else {
+                op = new Function(...Object.keys(symbols), calc);
+                opText = op.toString().replace(/\n/g, '');
+            }
+        }
+    } catch (err) {
+        console.error('Failed interpreting', calc, err.message);
+        return 1;
     }
 
-    console.log(`Band ${band}: ${op.toString().replace(/\n/g, '')} => ${outputType}`);
+    console.log(`Band ${band}: ${opText} => ${outputType}`);
 
     let noData;
     if (opts.n) {
@@ -156,6 +186,7 @@ for (const b in opts.c) {
 Promise.all(q).then(() => {
     output.close();
     console.log('\nDone');
+    process.exit(0);
 }).catch((e) => {
     console.error(e.message);
     process.exit(1);

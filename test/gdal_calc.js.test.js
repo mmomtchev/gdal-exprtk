@@ -150,4 +150,85 @@ describe('CLI tool', () => {
         ds.close();
         fs.unlinkSync(output);
     });
+
+    it('should support requiring a JS default export', () => {
+        const output = path.resolve(__dirname, 'temp', `tmp.default_export.${process.pid}.tiff`);
+        const args = [
+            '-i',
+            d2m + '=td',
+            '-i',
+            t2m + '=t',
+            '-o',
+            output,
+            '-f',
+            'GTiff',
+            '-t',
+            'Float64',
+            '-c',
+            `=${path.resolve(__dirname, 'espy.js')}`,
+            '-j'
+        ];
+        execFileSync('node', [exe, ...args]);
+
+        const ds = gdal.open(output);
+        assert.equal(gdal.checksumImage(ds.bands.get(1)), 38300);
+        assert.equal(ds.bands.get(1).dataType, gdal.GDT_Float64);
+        assert.isNull(ds.bands.get(1).noDataValue);
+        ds.close();
+        fs.unlinkSync(output);
+    });
+
+    it('should support requiring a JS named export', () => {
+        const output = path.resolve(__dirname, 'temp', `tmp.default_export.${process.pid}.tiff`);
+        const args = [
+            '-i',
+            d2m + '=td',
+            '-i',
+            t2m + '=t',
+            '-o',
+            output,
+            '-f',
+            'GTiff',
+            '-t',
+            'Float64',
+            '-c',
+            `=${path.resolve(__dirname, 'espy.js')}:espy`,
+            '-j'
+        ];
+        execFileSync('node', [exe, ...args]);
+
+        const ds = gdal.open(output);
+        assert.equal(gdal.checksumImage(ds.bands.get(1)), 38300);
+        assert.equal(ds.bands.get(1).dataType, gdal.GDT_Float64);
+        assert.isNull(ds.bands.get(1).noDataValue);
+        ds.close();
+        fs.unlinkSync(output);
+    });
+
+    it('should support reading ExprTk expression from file', () => {
+        const output = path.resolve(__dirname, 'temp', `tmp.default_export.${process.pid}.tiff`);
+        const args = [
+            '-i',
+            d2m + '=td',
+            '-i',
+            t2m + '=t',
+            '-o',
+            output,
+            '-f',
+            'GTiff',
+            '-t',
+            'Float64',
+            '-c',
+            `=${path.resolve(__dirname, 'espy.exprtk')}`,
+            '-e'
+        ];
+        execFileSync('node', [exe, ...args]);
+
+        const ds = gdal.open(output);
+        assert.equal(gdal.checksumImage(ds.bands.get(1)), 38300);
+        assert.equal(ds.bands.get(1).dataType, gdal.GDT_Float64);
+        assert.isNull(ds.bands.get(1).noDataValue);
+        ds.close();
+        fs.unlinkSync(output);
+    });
 });

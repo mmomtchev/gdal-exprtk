@@ -27,7 +27,7 @@ Install globally to use the command-line version:
 
 The command-line utility supports both JS functions and ExprTk expressions. It uses parallel processing whenever possible.
 
-With ExprTk expression:
+### With ExprTk expression:
 
 ```bash
 gdal_calc.js -i AROME_D2m_10.tiff=d -i AROME_T2m_10.tiff=t
@@ -35,7 +35,7 @@ gdal_calc.js -i AROME_D2m_10.tiff=d -i AROME_T2m_10.tiff=t
     -e -c '125*(t-d)' -f GTiff -t Float64
 ```
 
-With JS function:
+### With JS function:
 
 ```bash
 gdal_calc.js -i AROME_D2m_10.tiff=d -i AROME_T2m_10.tiff=t
@@ -43,7 +43,7 @@ gdal_calc.js -i AROME_D2m_10.tiff=d -i AROME_T2m_10.tiff=t
     -j -c 'return 125*(t-d);' -f GTiff -t Float64
 ```
 
-With multiband input files and automatic variable naming:
+### With multiband input files and automatic variable naming:
 
 ```bash
 gdal_calc.js -i multiband.tif:1 -i multiband.tif:2
@@ -51,7 +51,7 @@ gdal_calc.js -i multiband.tif:1 -i multiband.tif:2
     -e -c '(a+b)/2' -f GTiff -t Float64
 ```
 
-Producing a multiband output file:
+### Producing a multiband output file:
 
 ```bash
 gdal_calc.js -i multiband.tif:1=x -i multiband.tif:2=y
@@ -59,12 +59,47 @@ gdal_calc.js -i multiband.tif:1=x -i multiband.tif:2=y
     -e -c '(x+y)/2' -c '(x-y)/2' -f GTiff -t Float64
 ```
 
+### With `NoData`<->`Nan` conversion
+
 If a `NoData` value is specified for the output file, then all input `NoData` values will be converted to `NaN` before invoking the user function and all `NaN` values returned from the user function will be written as the `NoData` value. This works only if the output data type is a floating point type. `gdal-async@3.5` supports converting integer types to `NaN`, `gdal-async@3.4` requires that all input files have a floating point type for this to work.
 
 ```bash
 gdal_calc.js -i AROME_D2m_10.tiff=d -i AROME_T2m_10.tiff=t
     -o CLOUDBASE.tiff \
     -e -c '125*(t-d)' -f GTiff -t Float64 -n -1e-38
+```
+
+### Reading a JS function from a file
+
+This is significantly slower for a very simple function since a temporary object must be constructed for each pixel.
+
+`espy.js`:
+```js
+module.exports = {};
+module.exports.espy = ({ t, td }) => (125 * (t - td));
+```
+
+Then:
+```bash
+gdal_calc.js -i AROME_D2m_10.tiff=td -i AROME_T2m_10.tiff=t
+    -o CLOUDBASE.tiff \
+    -j -c =./espy.js:espy -f GTiff -t Float64 -n -1e-38
+```
+
+### Reading an ExprTk expression from a file
+
+ExprTk expressions do not have a performance penalty when reading from a file.
+
+`espy.exprtk`:
+```python
+125 * (t - td)
+```
+
+Then:
+```bash
+gdal_calc.js -i AROME_D2m_10.tiff=td -i AROME_T2m_10.tiff=t
+    -o CLOUDBASE.tiff \
+    -e -c =./espy.exprtk -f GTiff -t Float64 -n -1e-38
 ```
 
 ## With `calcAsync`
