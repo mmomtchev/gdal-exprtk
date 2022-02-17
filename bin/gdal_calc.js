@@ -48,7 +48,7 @@ const opts = program.opts();
 
 if (opts.q) console.log = () => undefined;
 
-const symbols = {};
+let symbols = {};
 
 let lastVar, rasterSize, outputType;
 if (opts.t) {
@@ -135,17 +135,20 @@ for (const b in opts.c) {
         } else {
             if (calc.startsWith('=')) {
                 const [file, name] = calc.split(':');
-                const fn = name ? require(file.substring(1))[name] : require(file.substring(1));
-                if (typeof fn !== 'function') {
+                op = name ? require(file.substring(1))[name] : require(file.substring(1));
+                if (typeof op !== 'function') {
                     console.error(calc, 'is not a function');
                     return 1;
                 }
-                op = function () {
-                    const arg = {};
-                    Object.keys(symbols).map((s, i) => arg[s] = arguments[i]);
-                    return fn(arg);
-                };
-                opText = fn.toString();
+                if (!(op.args instanceof Array)) {
+                    console.error(calc, 'does not have an args array');
+                    return 1;
+                }
+                const reorderedSymbols = {};
+                for (const a of op.args)
+                    reorderedSymbols[a] = symbols[a];
+                symbols = reorderedSymbols;
+                opText = op.toString();
             } else {
                 op = new Function(...Object.keys(symbols), calc);
                 opText = op.toString().replace(/\n/g, '');

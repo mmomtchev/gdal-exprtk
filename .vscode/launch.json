@@ -23,7 +23,7 @@
             "program": "${workspaceFolder}/bin/gdal_calc.js",
             "args": [
                 "-i",
-                "test/data/AROME_D2m_10.tiff=d",
+                "test/data/AROME_D2m_10.tiff=td",
                 "-i",
                 "test/data/AROME_T2m_10.tiff=t",
                 "-o",

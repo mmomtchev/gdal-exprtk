@@ -71,12 +71,13 @@ gdal_calc.js -i AROME_D2m_10.tiff=d -i AROME_T2m_10.tiff=t
 
 ### Reading a JS function from a file
 
-This is significantly slower for a very simple function since a temporary object must be constructed for each pixel.
+`gdal_calc.js` can use both a default and a named export. The arguments order must be given explicitly.
 
 `espy.js`:
 ```js
 module.exports = {};
-module.exports.espy = ({ t, td }) => (125 * (t - td));
+module.exports.espy = (t, td) => (125 * (t - td));
+module.exports.espy.args = ['t', 'td'];
 ```
 
 Then:
