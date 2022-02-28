@@ -98,9 +98,9 @@ describe('CLI tool', () => {
         const output = path.resolve(__dirname, 'temp', `tmp.nodata2.${process.pid}.tiff`);
         const args = [
             '-i',
-            mband + ':1=x',
+            mband + '@1=x',
             '-i',
-            mband + ':2=y',
+            mband + '@2=y',
             '-o',
             output,
             '-f',
@@ -192,7 +192,7 @@ describe('CLI tool', () => {
             '-t',
             'Float64',
             '-c',
-            `=${path.resolve(__dirname, 'espy.js')}:espy`,
+            `=${path.resolve(__dirname, 'espy.js')}@espy`,
             '-j'
         ];
         execFileSync('node', [exe, ...args]);
