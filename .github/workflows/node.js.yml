@@ -26,8 +26,6 @@ jobs:
       with:
         node-version: 14.x
     - run: npm i
-    - run: npx node-pre-gyp configure
-    - run: npx node-pre-gyp build -j max
     - run: npm test
 
 
