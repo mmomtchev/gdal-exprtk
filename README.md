@@ -292,22 +292,22 @@ Input must be a `gdal.RasterMuxStream`
 
 ```javascript
 const dsT2m = gdal.open('AROME_T2m_10.tiff'));
- const dsD2m = gdal.open('AROME_D2m_10.tiff'));
+const dsD2m = gdal.open('AROME_D2m_10.tiff'));
 
- const dsCloudBase = gdal.open('CLOUDBASE.tiff', 'w', 'GTiff',
+const dsCloudBase = gdal.open('CLOUDBASE.tiff', 'w', 'GTiff',
    dsT2m.rasterSize.x, dsT2m.rasterSize.y, 1, gdal.GDT_Float64);
 
- const mux = new gdal.RasterMuxStream({
+const mux = new gdal.RasterMuxStream({
    T2m: dsT2m.bands.get(1).pixels.createReadStream(),
    D2m: dsD2m.bands.get(1).pixels.createReadStream()
  });
- const ws = dsCloudBase.bands.get(1).pixels.createWriteStream();
+const ws = dsCloudBase.bands.get(1).pixels.createWriteStream();
 
- // Espy's estimation for cloud base height (lifted condensation level)
- // LCL = 125 * (T2m - Td2m)
- // where T2m is the temperature at 2m and Td2m is the dew point at 2m
- const expr = new Float64Expression('125 * (t - td)');
- const espyEstimation = new RasterTransform({ type: Float64Array, expr });
+// Espy's estimation for cloud base height (lifted condensation level)
+// LCL = 125 * (T2m - Td2m)
+// where T2m is the temperature at 2m and Td2m is the dew point at 2m
+const expr = new Float64Expression('125 * (t - td)');
+const espyEstimation = new RasterTransform({ type: Float64Array, expr });
 
- mux.pipe(espyEstimation).pipe(ws);
+mux.pipe(espyEstimation).pipe(ws);
 ```
