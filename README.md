@@ -89,8 +89,6 @@ gdal_calc.js -i AROME_D2m_10.tiff=td -i AROME_T2m_10.tiff=t
 
 ### Reading an ExprTk expression from a file
 
-ExprTk expressions do not have a performance penalty when reading from a file.
-
 `espy.exprtk`:
 ```python
 125 * (t - td)

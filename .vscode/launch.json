@@ -41,6 +41,32 @@
             "outFiles": [
                 "${workspaceFolder}/**/*.js"
             ]
-        }
+        },
+        {
+            "name": "mocha (gdb)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "/usr/bin/node",
+            "args": [
+                "--expose-gc",
+                "${workspaceFolder}/node_modules/mocha/lib/cli/cli.js",
+                "--timeout",
+                "0",
+                "-g",
+                "toPixelFunc"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
     ]
 }

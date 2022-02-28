@@ -1,0 +1,53 @@
+{
+    "env": {
+        "projectIncludePaths": [
+            "${workspaceFolder}/node_modules/node-addon-api",
+            "${workspaceFolder}/node_modules/gdal-async/include",
+            "${workspaceFolder}/node_modules/gdal-async/deps/libgdal/gdal/alg",
+            "${workspaceFolder}/node_modules/gdal-async/deps/libgdal/gdal/gcore",
+            "${workspaceFolder}/node_modules/gdal-async/deps/libgdal/gdal/port",
+            "${workspaceFolder}/node_modules/gdal-async/deps/libgdal/gdal/apps",
+            "${workspaceFolder}/node_modules/gdal-async/deps/libgdal/gdal/ogr",
+            "${workspaceFolder}/node_modules/gdal-async/deps/libgdal/gdal/ogr/ogrsf_frmts",
+            "${workspaceFolder}/node_modules/exprtk.js/include"
+        ]
+    },
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${projectIncludePaths}",
+                "${workspaceFolder}/node_modules/gdal-async/deps/libgdal/arch/unix",
+                "/usr/include/node",
+                "${default}"
+            ],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c99",
+            "cppStandard": "gnu++14"
+        },
+        {
+            "name": "OSX",
+            "includePath": [
+                "${projectIncludePaths}",
+                "${workspaceFolder}/node_modules/gdal-async/deps/libgdal/arch/unix",
+                "/usr/local/include/node",
+                "${default}"
+            ],
+            "compilerPath": "/usr/bin/clang",
+            "cStandard": "c99",
+            "cppStandard": "gnu++14"
+        },
+        {
+            "name": "Win32",
+            "includePath": [
+                "${projectIncludePaths}",
+                "${workspaceFolder}/node_modules/gdal-async/deps/libgdal/arch/win",
+                "${default}"
+            ],
+            "compilerPath": "cl.exe",
+            "cStandard": "c99",
+            "cppStandard": "c++14"
+        }
+    ],
+    "version": 4
+}

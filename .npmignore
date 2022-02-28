@@ -4,3 +4,5 @@ coverage
 .git
 .github
 .vsode
+build
+lib/binding

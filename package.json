@@ -33,6 +33,17 @@
     "url": "https://github.com/mmomtchev/gdal-exprtk/issues"
   },
   "homepage": "https://github.com/mmomtchev/gdal-exprtk#readme",
+  "binary": {
+    "module_name": "gdal-exprtk",
+    "module_path": "./lib/binding/{platform}-{arch}",
+    "remote_path": "v{version}",
+    "host": "https://github.com/mmomtchev/gdal-exprtk/releases/download/",
+    "package_name": "{platform}-{arch}.tar.gz",
+    "hosting": {
+      "provider": "github",
+      "repo": "mmomtchev/gdal-exprtk"
+    }
+  },
   "dependencies": {
     "@types/node": ">=12.0.0",
     "commander": "^9.0.0",
@@ -40,7 +51,9 @@
     "gdal-async": ">=3.4.0"
   },
   "devDependencies": {
+    "@mapbox/node-pre-gyp": "^1.0.8",
     "@mmomtchev/documentation": "^14.0.0",
+    "@mmomtchev/node-pre-gyp-github": "^2.0.6",
     "@types/chai": "^4.3.0",
     "@types/chai-as-promised": "^7.1.5",
     "@types/mocha": "^9.1.0",
@@ -54,6 +67,7 @@
     "eslint-plugin-mocha": "^10.0.3",
     "eslint-plugin-prefer-arrow": "^1.2.3",
     "mocha": "^9.2.0",
+    "node-addon-api": "^4.3.0",
     "ts-node": "^10.5.0",
     "typescript": "^4.5.5",
     "yatag": "^1.2.0"
