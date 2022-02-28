@@ -48,7 +48,7 @@
     "@types/node": ">=12.0.0",
     "commander": "^9.0.0",
     "exprtk.js": "^2.0.0",
-    "gdal-async": ">=3.4.0"
+    "gdal-async": ">=3.5.0-alpha.0"
   },
   "devDependencies": {
     "@mapbox/node-pre-gyp": "^1.0.8",
