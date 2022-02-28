@@ -6,7 +6,7 @@
   'target_defaults': {
     'cflags!': [ '-fno-exceptions', '-fno-rtti', '-fvisibility=default' ],
     'cflags_cc!': [ '-fno-exceptions', '-fno-rtti', '-fvisibility=default' ],
-    'cflags_cc': [ '-fvisibility=hidden', '-std=c++14' ],
+    'cflags_cc': [ '-fvisibility=hidden', '-std=c++17' ],
     'ldflags': [ '-Wl,-z,now' ],
     'xcode_settings': {
       'GCC_ENABLE_CPP_EXCEPTIONS': 'YES',
@@ -15,7 +15,7 @@
 			'OTHER_CPLUSPLUSFLAGS': [
 				'-frtti',
 				'-fexceptions',
-		        '-std=c++14'
+		        '-std=c++17'
 			],
 	},
 	'conditions': [
@@ -43,7 +43,7 @@
           '/EHsc',
           '/wd4146',
           '/wd4723',
-          '/std:c++14'
+          '/std:c++17'
         ],
         'ExceptionHandling': 1,
         'RuntimeTypeInfo': 'true'
