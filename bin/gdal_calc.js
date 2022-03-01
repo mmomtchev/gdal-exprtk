@@ -9,11 +9,11 @@ const { program } = require('commander');
 
 program
     .requiredOption('-i <input>',
-        'input dataset, dataset[:band]=var, may be present multiple times for multiple inputs', collect)
+        'input dataset, dataset[@band]=var, may be present multiple times for multiple inputs', collect)
     .requiredOption('-o <output>', 'ouput dataset')
     .requiredOption('-c <transform>',
         'expression to be applied, may be present multiple times for multiple bands in the output file,' +
-        ' use =file[:function] to read from file', collect)
+        ' use =file[@function] to read from file', collect)
     .requiredOption('-f <format>', 'output data format')
     .option('-j', 'JS mode (default)')
     .option('-e', 'ExprTk mode')
@@ -65,7 +65,7 @@ for (const inp of opts.i) {
     let varName, dsName, fileName, band, ds;
     try {
         [dsName, varName] = inp.split('=');
-        [fileName, band] = dsName.split(':');
+        [fileName, band] = dsName.split('@');
         if (varName === undefined) {
             do {
                 lastVar = nextVar(lastVar);
@@ -73,7 +73,7 @@ for (const inp of opts.i) {
             varName = lastVar;
         }
     } catch (e) {
-        console.error('Failed decoding input band selector:', inp, 'must have dataset[:band]=var');
+        console.error('Failed decoding input band selector:', inp, 'must have dataset[@band]=var');
         return -1;
     }
     try {
@@ -134,7 +134,7 @@ for (const b in opts.c) {
             opText = op.toString();
         } else {
             if (calc.startsWith('=')) {
-                const [file, name] = calc.split(':');
+                const [file, name] = calc.split('@');
                 op = name ? require(file.substring(1))[name] : require(file.substring(1));
                 if (typeof op !== 'function') {
                     console.error(calc, 'is not a function');

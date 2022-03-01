@@ -66,6 +66,20 @@ export interface RasterTransformOptions extends stream.TransformOptions {
  * }, cloudBase.bands.getAsync(1), espyFn, { convertNoData: true });
  */
   export function calcAsync(inputs: Record<string, gdal.RasterBand>, output: gdal.RasterBand, expr: Expression, options?: CalcOptions): Promise<void>
+
+  /**
+ * Get a `gdal-async` pixel function descriptor for this `ExprTk.js` expression.
+ * 
+ * Every call of this function produces a permanent GDAL descriptor that cannot
+ * be garbage-collected, so it must be called only once per `ExprTk.js` expression.
+ *
+ * @kind method
+ * @name toPixelFunc
+ * @param {Expression} expression
+ * @static
+ * @returns {Uint8Array}
+ */
+  export function toPixelFunc(expression: Expression): Uint8Array
 export class RasterTransform extends stream.Transform {
 /**
  * A raster Transform stream

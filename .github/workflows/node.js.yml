@@ -13,7 +13,11 @@ on:
 jobs:
   default:
 
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macos-11, windows-2019 ]
+
+    runs-on: ${{ matrix.os }}
 
     steps:
     - uses: actions/checkout@v2
@@ -22,7 +26,6 @@ jobs:
       with:
         node-version: 14.x
     - run: npm i
-    - run: npm run build --if-present
     - run: npm test
 
 
@@ -37,9 +40,13 @@ jobs:
       with:
         node-version: 14.x
     - run: npm i
-    - run: npm run build --if-present
+    - run: npx node-pre-gyp configure --debug --enable_coverage
+    - run: npx node-pre-gyp build -j max
     - run: npm run c8
-    - run: npm run lcov
+    - name: Collect coverage data
+      run: |
+        npm run gcov
+        npm run lcov
     - run: npm run codecov
       env:
         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

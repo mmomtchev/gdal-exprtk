@@ -46,7 +46,7 @@ gdal_calc.js -i AROME_D2m_10.tiff=d -i AROME_T2m_10.tiff=t
 ### With multiband input files and automatic variable naming:
 
 ```bash
-gdal_calc.js -i multiband.tif:1 -i multiband.tif:2
+gdal_calc.js -i multiband.tif@1 -i multiband.tif@2
     -o output.tiff \
     -e -c '(a+b)/2' -f GTiff -t Float64
 ```
@@ -54,7 +54,7 @@ gdal_calc.js -i multiband.tif:1 -i multiband.tif:2
 ### Producing a multiband output file:
 
 ```bash
-gdal_calc.js -i multiband.tif:1=x -i multiband.tif:2=y
+gdal_calc.js -i multiband.tif@1=x -i multiband.tif@2=y
     -o output.tiff \
     -e -c '(x+y)/2' -c '(x-y)/2' -f GTiff -t Float64
 ```
@@ -84,12 +84,10 @@ Then:
 ```bash
 gdal_calc.js -i AROME_D2m_10.tiff=td -i AROME_T2m_10.tiff=t
     -o CLOUDBASE.tiff \
-    -j -c =./espy.js:espy -f GTiff -t Float64 -n -1e-38
+    -j -c =./espy.js@espy -f GTiff -t Float64 -n -1e-38
 ```
 
 ### Reading an ExprTk expression from a file
-
-ExprTk expressions do not have a performance penalty when reading from a file.
 
 `espy.exprtk`:
 ```python
