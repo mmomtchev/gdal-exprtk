@@ -6,7 +6,7 @@
 
 struct Expression {
   exprtk_js::exprtk_expression *expr;
-  Napi::ObjectReference permanent;
+  Napi::ObjectReference *permanent;
 };
 
 std::vector<Expression> pixelFuncs;
@@ -65,6 +65,9 @@ CPLErr pixelFunc(
   size_t id = std::strtoul(szid, &end, 16);
   if (end == szid || id > pixelFuncs.size()) { throw "gdal-exprtk Internal error, pixelFuncs inconsistency"; }
   Expression &expr = pixelFuncs[id];
+  if (expr.expr == nullptr || expr.permanent == nullptr) {
+    throw "gdal-exprtk Expression associated with dead instance";
+  }
 
   if (static_cast<size_t>(nSources) != expr.expr->scalars_len) { throw "wrong number of inputs for Expression"; }
 
@@ -131,7 +134,7 @@ Napi::Uint8Array toPixelFunc(const Napi::CallbackInfo &info) {
   }
 
   size_t uid = pixelFuncs.size();
-  pixelFuncs.push_back({expr, Napi::Persistent(info[0].ToObject())});
+  pixelFuncs.push_back({expr, new Napi::ObjectReference(Napi::Persistent(info[0].ToObject()))});
 
   std::string metadata;
   metadata.reserve(strlen(metadataTemplate) + 128);
@@ -147,12 +150,21 @@ Napi::Uint8Array toPixelFunc(const Napi::CallbackInfo &info) {
   return r;
 }
 
-void Cleanup() {
-  pixelFuncs.clear();
+void Cleanup(napi_env env) {
+  for (auto &f : pixelFuncs) {
+    if (f.permanent != nullptr) {
+      // napi_env is a pointer so simple scalar comparison works
+      if (static_cast<napi_env>(f.permanent->Env()) == env) {
+        delete f.permanent;
+        f.permanent = nullptr;
+        f.expr = nullptr;
+      }
+    }
+  }
 }
 
 Napi::Object Init(Napi::Env env, Napi::Object exports) {
-  env.AddCleanupHook(Cleanup);
+  env.AddCleanupHook(Cleanup, static_cast<napi_env>(env));
 
   exports.Set(Napi::String::New(env, "toPixelFunc"), Napi::Function::New(env, toPixelFunc));
   return exports;
