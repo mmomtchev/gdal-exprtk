@@ -10,7 +10,7 @@
     "test": "mocha",
     "build": "npm run build:lib && npm run build:doc",
     "build:lib": "npx yatag",
-    "build:doc": "documentation readme --section=API lib/*.js",
+    "build:doc": "documentation readme --section=API --config=documentation.yml lib/*.js src/*.cc",
     "install": "node-pre-gyp install --fallback-to-build -j max",
     "c8": "npx c8 mocha",
     "lcov": "npx c8 report --reporter=text-lcov > coverage/tests.lcov",
@@ -51,6 +51,7 @@
     "@mmomtchev/node-pre-gyp-github": "^2.0.6",
     "@types/node": ">=12.0.0",
     "commander": "^9.0.0",
+    "documentation-polyglot": "^1.0.1",
     "exprtk.js": "^2.0.0",
     "gdal-async": ">=3.5.0-alpha.0",
     "node-addon-api": "^4.3.0"

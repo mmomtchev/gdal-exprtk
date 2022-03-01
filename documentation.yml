@@ -1,0 +1,28 @@
+shallow: true
+
+plugin:
+  - documentation-polyglot
+
+sortOrder:
+  - kind:
+    - namespace
+    - class
+    - interface
+    - typedef
+    - enum
+    - constant
+    - property
+    - function
+    - member
+  - alpha
+
+defaultGlobals: false
+
+documentation-polyglot:
+  extensions: [ .cc, .h ]
+  infer:
+    kind:
+      function: 
+        - .*\s+[a-zA-Z_0-9]+\s*\(.*\)
+    name:
+      - .*\s+([a-zA-Z_0-9]+)\s*\(.*\)

@@ -98,6 +98,15 @@ CPLErr pixelFunc(
  * Every call of this function produces a permanent GDAL descriptor that cannot
  * be garbage-collected, so it must be called only once per `ExprTk.js` expression.
  * 
+ * As of GDAL 3.4, GDAL does not allow unregistering a previously registered function.
+ * 
+ * The returned object can be used across multiple V8 instances (ie worker threads).
+ * 
+ * `gdal-async` does not support multiple V8 instances.
+ *
+ * If the V8 instance containing the `ExprTk.js` expression is destroyed, further attempts
+ * to read from Datasets referencing the function will produce an exception.
+ * 
  * @example
  * // This example will register a new GDAL pixel function called sum2
  * // that requires a VRT dataset with 2 values per pixel

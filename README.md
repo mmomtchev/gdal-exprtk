@@ -180,97 +180,21 @@ dsCloudBase.close();
 
 ### Table of Contents
 
-*   [ProgressCb](#progresscb)
+*   [RasterTransform](#rastertransform)
     *   [Parameters](#parameters)
-*   [CalcOptions](#calcoptions)
-    *   [Properties](#properties)
-*   [calcAsync](#calcasync)
-    *   [Parameters](#parameters-1)
     *   [Examples](#examples)
 *   [RasterTransformOptions](#rastertransformoptions)
+    *   [Properties](#properties)
+*   [CalcOptions](#calcoptions)
     *   [Properties](#properties-1)
-*   [RasterTransform](#rastertransform)
+*   [ProgressCb](#progresscb)
+    *   [Parameters](#parameters-1)
+*   [calcAsync](#calcasync)
     *   [Parameters](#parameters-2)
     *   [Examples](#examples-1)
-
-## ProgressCb
-
-Type: [Function](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function)
-
-### Parameters
-
-*   `complete` **[number](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number)**&#x20;
-
-## CalcOptions
-
-Type: [object](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object)
-
-### Properties
-
-*   `convertNoData` **[boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)?**&#x20;
-*   `progress_cb` **[ProgressCb](#progresscb)?**&#x20;
-
-## calcAsync
-
-Compute a new output band as a pixel-wise function of given input bands
-
-This is an alternative implementation of `gdal_calc.py`.
-
-It is identical to the one in gdal-async except that it accepts an ExprTK.js
-expression as function instead of a JS function.
-
-It's main advantage is that it does not solicit the V8's main thread for any
-operation that is not O(1) - all computation is performed in background
-async threads. The only exception is the `convertNoData` option with `gdal-async@3.4`
-which is implemented in JS. `gdal-async@3.5` supports C++ conversion of NoData
-to NaN.
-
-It internally uses a [RasterTransform](#rastertransform) which can also be used directly for
-a finer-grained control over the transformation.
-
-There is no sync version.
-
-### Parameters
-
-*   `inputs` **Record<[string](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String), gdal.RasterBand>** An object containing all the input bands
-*   `output` **gdal.RasterBand** Output raster band
-*   `expr` **Expression** ExprTk.js expression
-*   `options` **[CalcOptions](#calcoptions)?** Options
-
-    *   `options.convertNoData` **[boolean](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean)** Input bands will have their
-        NoData pixels converted toNaN and a NaN output value of the given function
-        will be converted to a NoData pixel, provided that the output raster band
-        has its `RasterBand.noDataValue` set (optional, default `false`)
-    *   `options.progress_cb` **[ProgressCb](#progresscb)** Progress callback (optional, default `undefined`)
-
-### Examples
-
-```javascript
-const T2m = await gdal.openAsync('TEMP_2M.tiff'));
-const D2m = await gdal.openAsync('DEWPOINT_2M.tiff'));
-const size = await T2m.rasterSizeAsync
-const cloudBase = await gdal.openAsync('CLOUDBASE.tiff', 'w', 'GTiff',
-   size.x, size.y, 1, gdal.GDT_Float64);
-
-(await cloudBase.bands.getAsync(1)).noDataValue = -1e38
-// Espy's estimation for cloud base height
-const espyFn = (t, td) => 125 * (t - td);
-
-await calcAsync({
- t: await T2m.bands.getAsync(1),
- td: await D2m.bands.getAsync(1)
-}, cloudBase.bands.getAsync(1), espyFn, { convertNoData: true });
-```
-
-Returns **[Promise](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise)\<void>**&#x20;
-
-## RasterTransformOptions
-
-**Extends stream.TransformOptions**
-
-### Properties
-
-*   `expr` **Expression** Function to be applied on all data
+*   [toPixelFunc](#topixelfunc)
+    *   [Parameters](#parameters-3)
+    *   [Examples](#examples-2)
 
 ## RasterTransform
 
@@ -288,7 +212,7 @@ Input must be a `gdal.RasterMuxStream`
 
 *   `options` **[RasterTransformOptions](#rastertransformoptions)?**&#x20;
 
-    *   `options.exr` **([Function](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Statements/function) | Expression)** Function to be applied on all data
+    *   `options.exr` **(Function | Expression)** Function to be applied on all data
 
 ### Examples
 
@@ -313,3 +237,117 @@ const espyEstimation = new RasterTransform({ type: Float64Array, expr });
 
 mux.pipe(espyEstimation).pipe(ws);
 ```
+
+## RasterTransformOptions
+
+**Extends stream.TransformOptions**
+
+### Properties
+
+*   `expr` **Expression** Function to be applied on all data
+
+## CalcOptions
+
+Type: object
+
+### Properties
+
+*   `convertNoData` **boolean?**&#x20;
+*   `progress_cb` **[ProgressCb](#progresscb)?**&#x20;
+
+## ProgressCb
+
+Type: Function
+
+### Parameters
+
+*   `complete` **number**&#x20;
+
+## calcAsync
+
+Compute a new output band as a pixel-wise function of given input bands
+
+This is an alternative implementation of `gdal_calc.py`.
+
+It is identical to the one in gdal-async except that it accepts an ExprTK.js
+expression as function instead of a JS function.
+
+It's main advantage is that it does not solicit the V8's main thread for any
+operation that is not O(1) - all computation is performed in background
+async threads. The only exception is the `convertNoData` option with `gdal-async@3.4`
+which is implemented in JS. `gdal-async@3.5` supports C++ conversion of NoData
+to NaN.
+
+It internally uses a [RasterTransform](#rastertransform) which can also be used directly for
+a finer-grained control over the transformation.
+
+There is no sync version.
+
+### Parameters
+
+*   `inputs` **Record\<string, gdal.RasterBand>** An object containing all the input bands
+*   `output` **gdal.RasterBand** Output raster band
+*   `expr` **Expression** ExprTk.js expression
+*   `options` **[CalcOptions](#calcoptions)?** Options
+
+    *   `options.convertNoData` **boolean** Input bands will have their
+        NoData pixels converted toNaN and a NaN output value of the given function
+        will be converted to a NoData pixel, provided that the output raster band
+        has its `RasterBand.noDataValue` set (optional, default `false`)
+    *   `options.progress_cb` **[ProgressCb](#progresscb)** Progress callback (optional, default `undefined`)
+
+### Examples
+
+```javascript
+const T2m = await gdal.openAsync('TEMP_2M.tiff'));
+const D2m = await gdal.openAsync('DEWPOINT_2M.tiff'));
+const size = await T2m.rasterSizeAsync
+const cloudBase = await gdal.openAsync('CLOUDBASE.tiff', 'w', 'GTiff',
+   size.x, size.y, 1, gdal.GDT_Float64);
+
+(await cloudBase.bands.getAsync(1)).noDataValue = -1e38
+// Espy's estimation for cloud base height
+const espyFn = (t, td) => 125 * (t - td);
+
+await calcAsync({
+ t: await T2m.bands.getAsync(1),
+ td: await D2m.bands.getAsync(1)
+}, cloudBase.bands.getAsync(1), espyFn, { convertNoData: true });
+```
+
+Returns **Promise\<void>**&#x20;
+
+## toPixelFunc
+
+Get a `gdal-async` pixel function descriptor for this `ExprTk.js` expression.
+
+Every call of this function produces a permanent GDAL descriptor that cannot
+be garbage-collected, so it must be called only once per `ExprTk.js` expression.
+
+As of GDAL 3.4, GDAL does not allow unregistering a previously registered function.
+
+The returned object can be used across multiple V8 instances (ie worker threads).
+
+`gdal-async` does not support multiple V8 instances.
+
+If the V8 instance containing the `ExprTk.js` expression is destroyed, further attempts
+to read from Datasets referencing the function will produce an exception.
+
+### Parameters
+
+*   `expression` **Expression**&#x20;
+
+### Examples
+
+```javascript
+// This example will register a new GDAL pixel function called sum2
+// that requires a VRT dataset with 2 values per pixel
+
+const gdal = require('gdal-async);
+const Float64Expression = require('exprtk.js').Float64;
+const { toPixelFunc } = require('gdal-exprtk');
+const sum2 = new Float64Expression('a + b');
+gdal.addPixelFunc('sum2', toPixelFunc(sum2));
+```
+
+Returns **gdal.PixelFunction**&#x20;
