@@ -74,6 +74,7 @@ gdal_calc.js -i AROME_D2m_10.tiff=d -i AROME_T2m_10.tiff=t
 `gdal_calc.js` can use both a default and a named export. The arguments order must be given explicitly.
 
 `espy.js`:
+
 ```js
 module.exports = {};
 module.exports.espy = (t, td) => (125 * (t - td));
@@ -81,6 +82,7 @@ module.exports.espy.args = ['t', 'td'];
 ```
 
 Then:
+
 ```bash
 gdal_calc.js -i AROME_D2m_10.tiff=td -i AROME_T2m_10.tiff=t
     -o CLOUDBASE.tiff \
@@ -90,11 +92,13 @@ gdal_calc.js -i AROME_D2m_10.tiff=td -i AROME_T2m_10.tiff=t
 ### Reading an ExprTk expression from a file
 
 `espy.exprtk`:
+
 ```python
 125 * (t - td)
 ```
 
 Then:
+
 ```bash
 gdal_calc.js -i AROME_D2m_10.tiff=td -i AROME_T2m_10.tiff=t
     -o CLOUDBASE.tiff \
@@ -293,12 +297,12 @@ const dsT2m = gdal.open('AROME_T2m_10.tiff'));
 const dsD2m = gdal.open('AROME_D2m_10.tiff'));
 
 const dsCloudBase = gdal.open('CLOUDBASE.tiff', 'w', 'GTiff',
-   dsT2m.rasterSize.x, dsT2m.rasterSize.y, 1, gdal.GDT_Float64);
+  dsT2m.rasterSize.x, dsT2m.rasterSize.y, 1, gdal.GDT_Float64);
 
 const mux = new gdal.RasterMuxStream({
-   T2m: dsT2m.bands.get(1).pixels.createReadStream(),
-   D2m: dsD2m.bands.get(1).pixels.createReadStream()
- });
+  T2m: dsT2m.bands.get(1).pixels.createReadStream(),
+  D2m: dsD2m.bands.get(1).pixels.createReadStream()
+});
 const ws = dsCloudBase.bands.get(1).pixels.createWriteStream();
 
 // Espy's estimation for cloud base height (lifted condensation level)
