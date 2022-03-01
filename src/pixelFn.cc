@@ -44,6 +44,9 @@ size_t GDALTypeSize(GDALDataType t) {
   throw "GDAL data type not supported by exprtk.js";
 }
 
+// This is the GDAL pixel function callback
+// GDAL never throws (or catches), so throws in this function
+// will be propagated to the calling code in node-gdal
 CPLErr pixelFunc(
   void **papoSources,
   int nSources,
@@ -70,7 +73,7 @@ CPLErr pixelFunc(
   if (
     size != static_cast<size_t>(nPixelSpace) ||
     size * static_cast<size_t>(nBufXSize) != static_cast<size_t>(nLineSpace)) {
-    throw "gdal-exprtk does not still support irregular buffer strides";
+    throw "gdal-exprtk still does not support irregular buffer strides";
   }
 
   exprtk_js::exprtk_capi_cwise_arg result = {"result", fromGDALType(eBufType), len, pData};
