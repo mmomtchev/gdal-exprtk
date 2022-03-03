@@ -1,0 +1,27 @@
+name: Github packages publish
+
+on: workflow_dispatch
+
+jobs:
+  publish:
+
+    runs-on: ${{ matrix.platforms }}
+
+    strategy:
+      matrix:
+        platforms: [ ubuntu-latest, windows-2019, macos-10.15 ]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js 14.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: 14.x
+    - run: npm install
+    - run: npx @mapbox/node-pre-gyp configure
+    - run: npx @mapbox/node-pre-gyp build -j max
+    - run: npm test
+    - run: npx @mapbox/node-pre-gyp package
+    - run: npx @mmomtchev/node-pre-gyp-github publish
+      env:
+        NODE_PRE_GYP_GITHUB_TOKEN: ${{ secrets.NODE_PRE_GYP_GITHUB_TOKEN }}

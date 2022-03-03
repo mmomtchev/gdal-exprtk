@@ -11,7 +11,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  default:
+  test:
 
     strategy:
       matrix:

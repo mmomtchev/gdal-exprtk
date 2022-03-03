@@ -18,7 +18,7 @@
     "codecov": "curl -s https://codecov.io/bash | bash",
     "preversion": "npm run build:lib && npm run test",
     "version": "npm run build:doc && git add package.json README.md",
-    "postversion": "git push && git push --tags"
+    "postversion": "git push && git push --tags && node ./scripts/publish-packages.js "
   },
   "repository": {
     "type": "git",
@@ -29,7 +29,11 @@
     "exprtk",
     "async"
   ],
-  "author": "Momtchil Momtchev <momtchil@momtchev.com>",
+  "author": {
+    "name": "Momtchil Momtchev",
+    "url": "https://github.com/mmomtchev",
+    "email": "momtchil@momtchev.com"
+  },
   "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/mmomtchev/gdal-exprtk/issues"
