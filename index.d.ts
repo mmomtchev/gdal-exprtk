@@ -72,14 +72,33 @@ export interface RasterTransformOptions extends stream.TransformOptions {
  * 
  * Every call of this function produces a permanent GDAL descriptor that cannot
  * be garbage-collected, so it must be called only once per `ExprTk.js` expression.
+ * 
+ * As of GDAL 3.4, GDAL does not allow unregistering a previously registered function.
+ * 
+ * The returned object can be used across multiple V8 instances (ie worker threads).
+ * 
+ * `gdal-async` does not support multiple V8 instances.
+ *
+ * If the V8 instance containing the `ExprTk.js` expression is destroyed, further attempts
+ * to read from Datasets referencing the function will produce an exception.
+ * 
+ * @example
+ * // This example will register a new GDAL pixel function called sum2
+ * // that requires a VRT dataset with 2 values per pixel
+ * 
+ * const gdal = require('gdal-async);
+ * const Float64Expression = require('exprtk.js').Float64;
+ * const { toPixelFunc } = require('gdal-exprtk');
+ * const sum2 = new Float64Expression('a + b');
+ * gdal.addPixelFunc('sum2', toPixelFunc(sum2));
  *
  * @kind method
  * @name toPixelFunc
  * @param {Expression} expression
  * @static
- * @returns {Uint8Array}
+ * @returns {gdal.PixelFunction}
  */
-  export function toPixelFunc(expression: Expression): Uint8Array
+  export function toPixelFunc(expression: Expression): gdal.PixelFunction
 export class RasterTransform extends stream.Transform {
 /**
  * A raster Transform stream
@@ -91,25 +110,25 @@ export class RasterTransform extends stream.Transform {
  * {@link calcAsync} provides a higher-level interface for the same feature
  *
  * @example
- *  const dsT2m = gdal.open('AROME_T2m_10.tiff'));
- *  const dsD2m = gdal.open('AROME_D2m_10.tiff'));
+ * const dsT2m = gdal.open('AROME_T2m_10.tiff'));
+ * const dsD2m = gdal.open('AROME_D2m_10.tiff'));
  *
- *  const dsCloudBase = gdal.open('CLOUDBASE.tiff', 'w', 'GTiff',
- *    dsT2m.rasterSize.x, dsT2m.rasterSize.y, 1, gdal.GDT_Float64);
+ * const dsCloudBase = gdal.open('CLOUDBASE.tiff', 'w', 'GTiff',
+ *   dsT2m.rasterSize.x, dsT2m.rasterSize.y, 1, gdal.GDT_Float64);
  *
- *  const mux = new gdal.RasterMuxStream({
- *    T2m: dsT2m.bands.get(1).pixels.createReadStream(),
- *    D2m: dsD2m.bands.get(1).pixels.createReadStream()
- *  });
- *  const ws = dsCloudBase.bands.get(1).pixels.createWriteStream();
+ * const mux = new gdal.RasterMuxStream({
+ *   T2m: dsT2m.bands.get(1).pixels.createReadStream(),
+ *   D2m: dsD2m.bands.get(1).pixels.createReadStream()
+ * });
+ * const ws = dsCloudBase.bands.get(1).pixels.createWriteStream();
  *
- *  // Espy's estimation for cloud base height (lifted condensation level)
- *  // LCL = 125 * (T2m - Td2m)
- *  // where T2m is the temperature at 2m and Td2m is the dew point at 2m
- *  const expr = new Float64Expression('125 * (t - td)');
- *  const espyEstimation = new RasterTransform({ type: Float64Array, expr });
+ * // Espy's estimation for cloud base height (lifted condensation level)
+ * // LCL = 125 * (T2m - Td2m)
+ * // where T2m is the temperature at 2m and Td2m is the dew point at 2m
+ * const expr = new Float64Expression('125 * (t - td)');
+ * const espyEstimation = new RasterTransform({ type: Float64Array, expr });
  *
- *  mux.pipe(espyEstimation).pipe(ws);
+ * mux.pipe(espyEstimation).pipe(ws);
  *
  * @class RasterTransform
  * @extends stream.Transform
