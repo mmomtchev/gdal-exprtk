@@ -17,7 +17,7 @@
     "gcov": "mkdir -p coverage && cd coverage && gcov -o ../build/Debug/obj.target/gdal-exprtk/src ../src/*",
     "codecov": "curl -s https://codecov.io/bash | bash",
     "preversion": "npm run build:lib && npm run test",
-    "version": "npm run build:doc && git add package.json README.md",
+    "version": "npm run build:doc && git add package.json README.md index.d.ts",
     "postversion": "git push && git push --tags && node ./scripts/publish-packages.js "
   },
   "repository": {
