@@ -11,9 +11,10 @@ struct Expression {
 
 std::vector<Expression> pixelFuncs;
 
+#define PFN_ID_FIELD "node_gdal_exprtkjs_id"
 const char metadataTemplate[] =
   "<PixelFunctionArgumentsList>\n"
-  "   <Argument name ='node_gdal_exprtkjs_id' type='constant' value='%x' />\n"
+  "   <Argument name ='" PFN_ID_FIELD "' type='constant' value='%x' />\n"
   "</PixelFunctionArgumentsList>";
 
 exprtk_js::napi_compatible_type fromGDALType(GDALDataType t) {
@@ -59,17 +60,24 @@ CPLErr pixelFunc(
   int nLineSpace,
   CSLConstList papszFunctionArgs) {
 
-  const char *szid = node_gdal::GDALFetchNameValue(papszFunctionArgs, "node_gdal_exprtkjs_id");
-  if (szid == nullptr) { throw "gdal-exprtk Internal error, pixelFuncs inconsistency, id=NULL"; }
+  std::map<std::string, std::string> pfArgsMap;
+  node_gdal::ParseCSLConstList(papszFunctionArgs, pfArgsMap);
+
+  auto uid = pfArgsMap.find(PFN_ID_FIELD);
+  if (uid == pfArgsMap.end()) {
+    throw "gdal-async Internal error, pixelFuncs inconsistency, id=NULL";
+  }
   char *end;
-  size_t id = std::strtoul(szid, &end, 16);
-  if (end == szid || id > pixelFuncs.size()) { throw "gdal-exprtk Internal error, pixelFuncs inconsistency"; }
+  size_t id = std::strtoul(uid->second.c_str(), &end, 16);
+  if (end == uid->second.c_str() || id >= pixelFuncs.size()) {
+    throw "gdal-async Internal error, pixelFuncs inconsistency";
+  }
+  pfArgsMap.erase(PFN_ID_FIELD);
+
   Expression &expr = pixelFuncs[id];
   if (expr.expr == nullptr || expr.permanent == nullptr) {
     throw "gdal-exprtk Expression associated with dead instance";
   }
-
-  if (static_cast<size_t>(nSources) != expr.expr->scalars_len) { throw "wrong number of inputs for Expression"; }
 
   size_t len = nBufXSize * nBufYSize;
   size_t size = GDALTypeSize(eBufType);
@@ -80,12 +88,30 @@ CPLErr pixelFunc(
   }
 
   exprtk_js::exprtk_capi_cwise_arg result = {"result", fromGDALType(eBufType), len, pData};
-  std::shared_ptr<exprtk_js::exprtk_capi_cwise_arg[]> args(new exprtk_js::exprtk_capi_cwise_arg[nSources]);
+  std::shared_ptr<exprtk_js::exprtk_capi_cwise_arg[]> args(
+    new exprtk_js::exprtk_capi_cwise_arg[expr.expr->scalars_len]);
 
-  for (size_t i = 0; i < static_cast<size_t>(nSources); i++)
-    args[i] = {expr.expr->scalars[i], fromGDALType(eSrcType), len, papoSources[i]};
+  std::shared_ptr<double[]> exArgs(new double[expr.expr->scalars_len]);
 
-  if (expr.expr->cwise(expr.expr, nSources, args.get(), &result) != exprtk_js::exprtk_ok) {
+  int j = 0;
+  for (size_t i = 0; i < expr.expr->scalars_len; i++) {
+    auto arg = pfArgsMap.find(expr.expr->scalars[i]);
+    if (arg == pfArgsMap.end()) {
+      if (j >= nSources)
+        throw "gdal-exprtk pixel function can not handle that many inputs";
+      // This argument comes from a data source
+      args[i] = {expr.expr->scalars[i], fromGDALType(eSrcType), len, papoSources[j++]};
+    } else {
+      // This argument matches one of the external pixel function arguments
+      char *end;
+      exArgs[i] = std::strtod(arg->second.c_str(), &end);
+      if (*end != 0) throw "gdal-exprtk does not support string arguments";
+      args[i] = {expr.expr->scalars[i], exprtk_js::napi_float64_compatible, 1, &exArgs[i]};
+    }
+  }
+  if (j < nSources) throw "gdal-exprtk pixel function requires more inputs";
+
+  if (expr.expr->cwise(expr.expr, expr.expr->scalars_len, args.get(), &result) != exprtk_js::exprtk_ok) {
     throw "Failed evaluating ExprtJs expression";
   }
 
