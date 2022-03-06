@@ -25,7 +25,10 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: 14.x
-    - run: npm i --build-from-source
+    - run: npm install
+    - run: npm install node-gyp
+    - run: npx node-pre-gyp configure
+    - run: npx node-pre-gyp rebuild -j max
     - run: npm test
 
 
