@@ -2,8 +2,7 @@
 
 [![License: Apache 2.0](https://img.shields.io/github/license/mmomtchev/gdal-exprtk)](https://github.com/mmomtchev/gdal-exprtk/blob/master/LICENSE)
 [![npm version](https://img.shields.io/npm/v/gdal-exprtk)](https://www.npmjs.com/package/gdal-exprtk)
-[![Node.js CI](https://github.com/mmomtchev/gdal-exprtk/actions/workflows/node.js.yml/badge.svg)](https://github.com/mmomtchev/gdal-exprtk/actions/workflows/node.js.yml)
-[![codecov](https://codecov.io/gh/mmomtchev/gdal-exprtk/branch/main/graph/badge.svg?token=KwCAUjdnyZ)](https://codecov.io/gh/mmomtchev/gdal-exprtk)
+[![Node.js CI](https://github.com/mmomtchev/gdal-exprtk/actions/workflows/test-dev.yml/badge.svg)](https://github.com/mmomtchev/gdal-exprtk/actions/workflows/test-dev.yml)[![codecov](https://codecov.io/gh/mmomtchev/gdal-exprtk/branch/main/graph/badge.svg?token=KwCAUjdnyZ)](https://codecov.io/gh/mmomtchev/gdal-exprtk)
 
 This is a plugin that adds support for [ExprTk.js](https://github.com/mmomtchev/exprtk.js) expressions to [gdal-async](https://github.com/mmomtchev/node-gdal-async).
 
