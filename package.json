@@ -78,5 +78,8 @@
     "ts-node": "^10.5.0",
     "typescript": "^4.5.5",
     "yatag": "^1.2.0"
+  },
+  "engines": {
+    "node": ">=16"
   }
 }
