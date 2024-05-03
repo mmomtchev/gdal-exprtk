@@ -50,6 +50,9 @@ jobs:
       run: |
         npm run gcov
         npm run lcov
-    - run: npm run codecov
-      env:
-        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+    - uses: codecov/codecov-action@v3
+      with:
+        fail_ci_if_error: true
+        directory: ${{ github.workspace }}/coverage
+        token: ${{ secrets.CODECOV_TOKEN }}
+        verbose: true
