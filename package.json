@@ -58,7 +58,7 @@
     "documentation-polyglot": "^1.0.1",
     "exprtk.js": "^2.0.0",
     "gdal-async": ">=3.5.0-alpha.1",
-    "node-addon-api": "^4.3.0"
+    "node-addon-api": "^8.0.0"
   },
   "devDependencies": {
     "@mmomtchev/documentation": "^14.0.0",
