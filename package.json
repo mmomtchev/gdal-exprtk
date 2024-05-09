@@ -54,7 +54,7 @@
     "@mapbox/node-pre-gyp": "^1.0.8",
     "@mmomtchev/node-pre-gyp-github": "^2.0.6",
     "@types/node": ">=12.0.0",
-    "commander": "^9.0.0",
+    "commander": "^12.0.0",
     "documentation-polyglot": "^1.0.1",
     "exprtk.js": "^2.0.0",
     "gdal-async": ">=3.5.0-alpha.1",
