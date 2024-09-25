@@ -62,7 +62,7 @@
   },
   "devDependencies": {
     "@mmomtchev/documentation": "^14.0.0",
-    "@types/chai": "^4.3.0",
+    "@types/chai": "^5.0.0",
     "@types/chai-as-promised": "^8.0.0",
     "@types/mocha": "^10.0.6",
     "@typescript-eslint/eslint-plugin": "^8.1.0",
